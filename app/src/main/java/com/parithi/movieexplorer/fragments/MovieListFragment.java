@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,9 +22,8 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
 
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
 
-    private RecyclerView mMovieRecyclerView;
+    private GridView mMovieGridView;
     private MovieListAdapter mMovieListAdapter;
-    private GridLayoutManager mGridLayoutManager;
 
     public MovieListFragment() {
     }
@@ -37,11 +38,7 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMovieRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list_recycler_view);
-        mGridLayoutManager = new GridLayoutManager(getActivity(),2);
-
-        mMovieRecyclerView.setHasFixedSize(true);
-        mMovieRecyclerView.setLayoutManager(mGridLayoutManager);
+        mMovieGridView = (GridView) view.findViewById(R.id.movie_list_gridview);
 
         MovieManager.getInstance().setMovieManagerDelegate(this);
         MovieManager.getInstance().fetchMoviesFromURL();
@@ -51,10 +48,10 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
     public void notifyMoviesLoaded() {
         Log.d(LOG_TAG,"Notify Movies Loaded");
         mMovieListAdapter = new MovieListAdapter();
-        mMovieRecyclerView.setAdapter(mMovieListAdapter);
+        mMovieGridView.setAdapter(mMovieListAdapter);
     }
 
-    private class MovieListAdapter extends RecyclerView.Adapter<MovieViewHolder>{
+    private class MovieListAdapter extends BaseAdapter{
 
         private Object[] mMoviesList;
 
@@ -62,37 +59,48 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
             mMoviesList = MovieManager.getInstance().getMovieList().values().toArray();
         }
 
-        @Override
-        public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.movie_poster_layout, parent, false);
-            MovieViewHolder movieViewHolder = new MovieViewHolder(v);
-            return movieViewHolder;
-        }
 
         @Override
-        public void onBindViewHolder(MovieViewHolder holder, int position) {
-            if(mMoviesList[position]!=null) {
-                holder.movieTitleTextView.setText(((Movie) mMoviesList[position]).getTitle());
-                Glide.with(MovieListFragment.this).load(((Movie) mMoviesList[position]).getImageThumbnailURL()).centerCrop().crossFade().into(holder.moviePosterImageView);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
+        public int getCount() {
             return (mMoviesList==null) ? 0 : mMoviesList.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mMoviesList[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            MovieViewHolder movieViewHolder;
+            if(convertView==null){
+                convertView = LayoutInflater.from(getActivity()).inflate(R.layout.movie_poster_layout,parent,false);
+                movieViewHolder = new MovieViewHolder();
+                movieViewHolder.movieTitleTextView = (TextView) convertView.findViewById(R.id.movie_title_textview);
+                movieViewHolder.moviePosterImageView = (ImageView) convertView.findViewById(R.id.movie_poster_imageview);
+                movieViewHolder.movieRatingTextView = (TextView) convertView.findViewById(R.id.movie_rating_textview);
+                convertView.setTag(movieViewHolder);
+            } else {
+                movieViewHolder = (MovieViewHolder) convertView.getTag();
+            }
+
+            movieViewHolder.movieTitleTextView.setText(((Movie) mMoviesList[position]).getTitle());
+            movieViewHolder.movieRatingTextView.setText(String.format("%.2g", ((Movie) mMoviesList[position]).getUserRating()));
+            Glide.with(MovieListFragment.this).load(((Movie) mMoviesList[position]).getImageThumbnailURL()).centerCrop().crossFade().into(movieViewHolder.moviePosterImageView);
+
+            return convertView;
         }
     }
 
-    private static class MovieViewHolder extends RecyclerView.ViewHolder{
+    private static class MovieViewHolder {
 
         public TextView movieTitleTextView;
         public ImageView moviePosterImageView;
-
-        public MovieViewHolder(View itemView) {
-            super(itemView);
-            moviePosterImageView = (ImageView) itemView.findViewById(R.id.movie_poster_imageview);
-            movieTitleTextView = (TextView) itemView.findViewById(R.id.movie_title_textview);
-        }
+        public TextView movieRatingTextView;
     }
 }
