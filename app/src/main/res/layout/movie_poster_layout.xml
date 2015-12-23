@@ -1,23 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:padding="1dp" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="1dp">
 
     <ImageView
         android:id="@+id/movie_poster_imageview"
         android:layout_width="185dp"
         android:layout_height="275dp"
-        android:background="@android:color/black"/>
+        android:background="@android:color/black" />
 
-    <TextView
-        android:id="@+id/movie_title_textview"
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/poster_footer" />
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MOVIE TITLE"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:textSize="16sp"
-        android:singleLine="true"
-        android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/movie_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:gravity="left"
+            android:maxLines="2"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/movie_rating_textview"
+            android:text="MOVIE TITLE"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@id/movie_rating_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:singleLine="true"
+            android:padding="4dp"
+            android:background="#333333"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+    </RelativeLayout>
 
 </RelativeLayout>

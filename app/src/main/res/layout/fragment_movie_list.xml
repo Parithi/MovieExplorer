@@ -5,10 +5,12 @@
     android:background="@android:color/black"
     tools:context=".fragments.MovieListFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/movie_list_recycler_view"
-        android:scrollbars="vertical"
+    <GridView
+        android:id="@+id/movie_list_gridview"
         android:layout_width="match_parent"
+        android:numColumns="auto_fit"
+        android:columnWidth="145dp"
+        android:stretchMode="columnWidth"
         android:layout_height="match_parent"/>
 
 </FrameLayout>
