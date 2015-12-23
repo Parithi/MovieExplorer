@@ -4,19 +4,21 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.parithi.movieexplorer.R;
+import com.parithi.movieexplorer.managers.MovieManager;
 import com.parithi.movieexplorer.models.Movie;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+public class MovieListFragment extends Fragment implements MovieManager.MovieManagerDelegate {
 
-public class MovieListFragment extends Fragment {
+    private final String LOG_TAG = MovieListFragment.class.getSimpleName();
 
     private RecyclerView mMovieRecyclerView;
     private MovieListAdapter mMovieListAdapter;
@@ -37,16 +39,28 @@ public class MovieListFragment extends Fragment {
 
         mMovieRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list_recycler_view);
         mGridLayoutManager = new GridLayoutManager(getActivity(),2);
-        mMovieListAdapter = new MovieListAdapter();
 
         mMovieRecyclerView.setHasFixedSize(true);
         mMovieRecyclerView.setLayoutManager(mGridLayoutManager);
+
+        MovieManager.getInstance().setMovieManagerDelegate(this);
+        MovieManager.getInstance().fetchMoviesFromURL();
+    }
+
+    @Override
+    public void notifyMoviesLoaded() {
+        Log.d(LOG_TAG,"Notify Movies Loaded");
+        mMovieListAdapter = new MovieListAdapter();
         mMovieRecyclerView.setAdapter(mMovieListAdapter);
     }
 
     private class MovieListAdapter extends RecyclerView.Adapter<MovieViewHolder>{
 
-        private ArrayList<Movie> mMoviesList;
+        private Object[] mMoviesList;
+
+        public MovieListAdapter(){
+            mMoviesList = MovieManager.getInstance().getMovieList().values().toArray();
+        }
 
         @Override
         public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -58,12 +72,15 @@ public class MovieListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MovieViewHolder holder, int position) {
-            holder.movieTitleTextView.setText(mMoviesList.get(position).getTitle());
+            if(mMoviesList[position]!=null) {
+                holder.movieTitleTextView.setText(((Movie) mMoviesList[position]).getTitle());
+                Glide.with(MovieListFragment.this).load(((Movie) mMoviesList[position]).getImageThumbnailURL()).centerCrop().crossFade().into(holder.moviePosterImageView);
+            }
         }
 
         @Override
         public int getItemCount() {
-            return mMoviesList.size();
+            return (mMoviesList==null) ? 0 : mMoviesList.length;
         }
     }
 

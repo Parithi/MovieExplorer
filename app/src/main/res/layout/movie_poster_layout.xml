@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:paddingLeft="1dp" android:paddingRight="1dp" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:padding="1dp" android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/movie_poster_imageview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/darker_gray"
-        android:src="@android:drawable/btn_dialog"/>
+        android:layout_width="185dp"
+        android:layout_height="275dp"
+        android:background="@android:color/black"/>
 
     <TextView
         android:id="@+id/movie_title_textview"
@@ -18,6 +17,7 @@
         android:layout_marginLeft="8dp"
         android:textSize="16sp"
         android:singleLine="true"
+        android:textColor="#ffffff"
         android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

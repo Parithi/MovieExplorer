@@ -6,18 +6,24 @@ import java.util.Date;
  * Created by Parithi on 21/12/15.
  */
 public class Movie {
+    private long id;
     private String title;
     private String imageThumbnailURL;
     private String plotSynopsis;
-    private int userRating;
-    private Date releaseDate;
+    private double userRating;
+    private String releaseDate;
 
-    public Movie(String title, String imageThumbnailURL, String plotSynopsis, int userRating, Date releaseDate) {
+    public Movie(long id, String title, String imageThumbnailURL, String plotSynopsis, double userRating, String releaseDate) {
+        this.id = id;
         this.title = title;
         this.imageThumbnailURL = imageThumbnailURL;
         this.plotSynopsis = plotSynopsis;
         this.userRating = userRating;
         this.releaseDate = releaseDate;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -44,19 +50,19 @@ public class Movie {
         this.plotSynopsis = plotSynopsis;
     }
 
-    public int getUserRating() {
+    public double getUserRating() {
         return userRating;
     }
 
-    public void setUserRating(int userRating) {
+    public void setUserRating(double userRating) {
         this.userRating = userRating;
     }
 
-    public Date getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
 }
