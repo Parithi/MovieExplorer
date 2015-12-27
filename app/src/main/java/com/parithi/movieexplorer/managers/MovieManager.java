@@ -66,6 +66,7 @@ public class MovieManager {
             final String MOVIE_RESULTS = "results";
             final String MOVIE_ID = "id";
             final String MOVIE_POSTER_PATH = "poster_path";
+            final String MOVIE_BACKDROP_PATH = "backdrop_path";
             final String MOVIE_TITLE = "title";
             final String MOVIE_OVERVIEW = "overview";
             final String MOVIE_RATING = "vote_average";
@@ -80,6 +81,7 @@ public class MovieManager {
                 long id;
                 String title;
                 String imageThumbnailURL;
+                String movieBackDropURL;
                 String plotSynopsis;
                 double userRating;
                 String releaseDate;
@@ -89,10 +91,11 @@ public class MovieManager {
                 id = movieJsonObject.getLong(MOVIE_ID);
                 title = movieJsonObject.getString(MOVIE_TITLE);
                 imageThumbnailURL = "http://image.tmdb.org/t/p/w342/" + movieJsonObject.getString(MOVIE_POSTER_PATH);
+                movieBackDropURL = "http://image.tmdb.org/t/p/w500/" + movieJsonObject.getString(MOVIE_BACKDROP_PATH);
                 plotSynopsis = movieJsonObject.getString(MOVIE_OVERVIEW);
                 userRating = movieJsonObject.getDouble(MOVIE_RATING);
                 releaseDate = movieJsonObject.getString(MOVIE_RELEASE_DATE);
-                resultStrs[i] = new Movie(id,title,imageThumbnailURL,plotSynopsis,userRating,releaseDate);
+                resultStrs[i] = new Movie(id,title,imageThumbnailURL,movieBackDropURL,plotSynopsis,userRating,releaseDate);
             }
 
             return resultStrs;

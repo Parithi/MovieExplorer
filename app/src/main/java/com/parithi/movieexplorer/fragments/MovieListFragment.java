@@ -1,5 +1,6 @@
 package com.parithi.movieexplorer.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.parithi.movieexplorer.DetailActivity;
 import com.parithi.movieexplorer.R;
 import com.parithi.movieexplorer.managers.MovieManager;
 import com.parithi.movieexplorer.models.Movie;
@@ -76,7 +78,7 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             MovieViewHolder movieViewHolder;
             if(convertView==null){
                 convertView = LayoutInflater.from(getActivity()).inflate(R.layout.movie_poster_layout,parent,false);
@@ -93,6 +95,14 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
             movieViewHolder.movieRatingTextView.setText(String.format("%.2g", ((Movie) mMoviesList[position]).getUserRating()));
             Glide.with(MovieListFragment.this).load(((Movie) mMoviesList[position]).getImageThumbnailURL()).centerCrop().crossFade().into(movieViewHolder.moviePosterImageView);
 
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                    detailIntent.putExtra(Intent.EXTRA_TEXT,((Movie) mMoviesList[position]).getId());
+                    startActivity(detailIntent);
+                }
+            });
             return convertView;
         }
     }

@@ -9,14 +9,16 @@ public class Movie {
     private long id;
     private String title;
     private String imageThumbnailURL;
+    private String movieBackDropURL;
     private String plotSynopsis;
     private double userRating;
     private String releaseDate;
 
-    public Movie(long id, String title, String imageThumbnailURL, String plotSynopsis, double userRating, String releaseDate) {
+    public Movie(long id, String title, String imageThumbnailURL, String movieBackDropURL, String plotSynopsis, double userRating, String releaseDate) {
         this.id = id;
         this.title = title;
         this.imageThumbnailURL = imageThumbnailURL;
+        this.movieBackDropURL = movieBackDropURL;
         this.plotSynopsis = plotSynopsis;
         this.userRating = userRating;
         this.releaseDate = releaseDate;
@@ -64,5 +66,17 @@ public class Movie {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getMovieBackDropURL() {
+        return movieBackDropURL;
+    }
+
+    public void setMovieBackDropURL(String movieBackDropURL) {
+        this.movieBackDropURL = movieBackDropURL;
     }
 }

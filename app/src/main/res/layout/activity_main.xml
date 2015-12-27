@@ -1,4 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context=".MainActivity" tools:ignore="MergeRootFrame" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity"
+        tools:ignore="MergeRootFrame" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        android:theme="@style/TransparentActionBar"
+        android:background="@drawable/poster_footer_inverse"
+        android:layout_width="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_height="?attr/actionBarSize" />
+</RelativeLayout>
