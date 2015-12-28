@@ -1,9 +1,10 @@
-package com.parithi.movieexplorer;
+package com.parithi.movieexplorer.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.parithi.movieexplorer.R;
 import com.parithi.movieexplorer.fragments.MovieListFragment;
 
 public class MainActivity extends AppCompatActivity {

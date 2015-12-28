@@ -2,4 +2,7 @@
     <string name="app_name">MovieExplorer</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="sort_by_label">Sort By</string>
+    <string name="most_popular_label">Most Popular</string>
+    <string name="highest_rated_label">Highest Rated</string>
 </resources>

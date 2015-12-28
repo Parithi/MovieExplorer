@@ -21,4 +21,16 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
+
+    <style name="HeadingStyle" parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textColor">#DFDFDF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <style name="ContentStyle" parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textColor">#DFDFDF</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
 </resources>

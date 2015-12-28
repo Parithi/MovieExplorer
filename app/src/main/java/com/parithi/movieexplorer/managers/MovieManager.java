@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.parithi.movieexplorer.Constants;
+import com.parithi.movieexplorer.MovieExplorerApplication;
 import com.parithi.movieexplorer.models.Movie;
 
 import org.json.JSONArray;
@@ -16,8 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -25,13 +25,12 @@ import java.util.LinkedHashMap;
  */
 public class MovieManager {
 
-    private final static String API_KEY = "3e9001bdbcd8d0e00e416d1826befaa5";
     private MovieManagerDelegate mMovieManagerDelegate;
     private static MovieManager mMovieManagerInstance;
     private LinkedHashMap<Long, Movie> movieList;
 
     public static MovieManager getInstance() {
-        if(mMovieManagerInstance ==null){
+        if (mMovieManagerInstance == null) {
             mMovieManagerInstance = new MovieManager();
         }
         return mMovieManagerInstance;
@@ -40,12 +39,11 @@ public class MovieManager {
     private MovieManager() {
     }
 
-    public void fetchMoviesFromURL(){
-        new MovieFetcherTask().execute("popularity.desc");
+    public void fetchMoviesFromURL() {
+        new MovieFetcherTask().execute(MovieExplorerApplication.getStoredSortMode());
     }
 
     public LinkedHashMap<Long, Movie> getMovieList() {
-        Log.d("MovieManager",movieList.size() + "");
         return movieList;
     }
 
@@ -53,7 +51,7 @@ public class MovieManager {
         this.mMovieManagerDelegate = mMovieManagerDelegate;
     }
 
-    public static interface MovieManagerDelegate{
+    public static interface MovieManagerDelegate {
         void notifyMoviesLoaded();
     }
 
@@ -76,7 +74,7 @@ public class MovieManager {
             JSONArray movieArray = movieJson.getJSONArray(MOVIE_RESULTS);
 
             Movie[] resultStrs = new Movie[movieArray.length()];
-            for(int i = 0; i < movieArray.length(); i++) {
+            for (int i = 0; i < movieArray.length(); i++) {
 
                 long id;
                 String title;
@@ -90,12 +88,12 @@ public class MovieManager {
 
                 id = movieJsonObject.getLong(MOVIE_ID);
                 title = movieJsonObject.getString(MOVIE_TITLE);
-                imageThumbnailURL = "http://image.tmdb.org/t/p/w342/" + movieJsonObject.getString(MOVIE_POSTER_PATH);
+                imageThumbnailURL = "http://image.tmdb.org/t/p/w185/" + movieJsonObject.getString(MOVIE_POSTER_PATH);
                 movieBackDropURL = "http://image.tmdb.org/t/p/w500/" + movieJsonObject.getString(MOVIE_BACKDROP_PATH);
                 plotSynopsis = movieJsonObject.getString(MOVIE_OVERVIEW);
                 userRating = movieJsonObject.getDouble(MOVIE_RATING);
                 releaseDate = movieJsonObject.getString(MOVIE_RELEASE_DATE);
-                resultStrs[i] = new Movie(id,title,imageThumbnailURL,movieBackDropURL,plotSynopsis,userRating,releaseDate);
+                resultStrs[i] = new Movie(id, title, imageThumbnailURL, movieBackDropURL, plotSynopsis, userRating, releaseDate);
             }
 
             return resultStrs;
@@ -105,15 +103,17 @@ public class MovieManager {
         protected void onPostExecute(Movie[] movies) {
             super.onPostExecute(movies);
 
-            if(movieList == null){
+            if (movieList == null) {
                 movieList = new LinkedHashMap<>();
+            } else {
+                movieList.clear();
             }
 
-            for(Movie movie : movies){
-                movieList.put(movie.getId(),movie);
+            for (Movie movie : movies) {
+                movieList.put(movie.getId(), movie);
             }
 
-            if(mMovieManagerDelegate!=null){
+            if (mMovieManagerDelegate != null) {
                 mMovieManagerDelegate.notifyMoviesLoaded();
             }
         }
@@ -131,19 +131,12 @@ public class MovieManager {
             String movieJsonStr = null;
 
             try {
-                final String MOVIEDB_BASE_URL =
-                        "http://api.themoviedb.org/3/discover/movie?";
-                final String SORT_PARAM = "sort_by";
-                final String API_KEY_PARAM = "api_key";
-
-                Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_PARAM, params[0])
-                        .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                Uri builtUri = Uri.parse(Constants.MOVIEDB_BASE_URL).buildUpon()
+                        .appendQueryParameter(Constants.SORT_PARAM, params[0])
+                        .appendQueryParameter(Constants.API_KEY_PARAM, Constants.API_KEY)
                         .build();
 
                 URL url = new URL(builtUri.toString());
-
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -166,7 +159,6 @@ public class MovieManager {
                 }
                 movieJsonStr = buffer.toString();
 
-                Log.v(LOG_TAG, "Movie JSON string: " + movieJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 return null;

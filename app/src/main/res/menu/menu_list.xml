@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.DetailActivity">
+    <item
+        android:id="@+id/sort_by_menuitem"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_label"
+        app:showAsAction="ifRoom" />
+</menu>

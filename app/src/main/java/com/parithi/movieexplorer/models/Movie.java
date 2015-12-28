@@ -1,7 +1,5 @@
 package com.parithi.movieexplorer.models;
 
-import java.util.Date;
-
 /**
  * Created by Parithi on 21/12/15.
  */
