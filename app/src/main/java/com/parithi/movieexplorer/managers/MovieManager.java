@@ -1,11 +1,13 @@
 package com.parithi.movieexplorer.managers;
 
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.parithi.movieexplorer.Constants;
 import com.parithi.movieexplorer.MovieExplorerApplication;
+import com.parithi.movieexplorer.data.MovieContract;
 import com.parithi.movieexplorer.models.Movie;
 
 import org.json.JSONArray;
@@ -19,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 /**
  * Created by Parithi on 21/12/15.
@@ -59,7 +62,7 @@ public class MovieManager {
 
         private final String LOG_TAG = MovieFetcherTask.class.getSimpleName();
 
-        private Movie[] getMoviesFromJson(String movieJsonStr) throws JSONException {
+        private void getMoviesFromJson(String movieJsonStr) throws JSONException {
 
             final String MOVIE_RESULTS = "results";
             final String MOVIE_ID = "id";
@@ -69,11 +72,14 @@ public class MovieManager {
             final String MOVIE_OVERVIEW = "overview";
             final String MOVIE_RATING = "vote_average";
             final String MOVIE_RELEASE_DATE = "release_date";
+            final String MOVIE_POPULARITY = "popularity";
 
             JSONObject movieJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = movieJson.getJSONArray(MOVIE_RESULTS);
 
             Movie[] resultStrs = new Movie[movieArray.length()];
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(movieArray.length());
+
             for (int i = 0; i < movieArray.length(); i++) {
 
                 long id;
@@ -83,6 +89,7 @@ public class MovieManager {
                 String plotSynopsis;
                 double userRating;
                 String releaseDate;
+                double popularity;
 
                 JSONObject movieJsonObject = movieArray.getJSONObject(i);
 
@@ -93,10 +100,29 @@ public class MovieManager {
                 plotSynopsis = movieJsonObject.getString(MOVIE_OVERVIEW);
                 userRating = movieJsonObject.getDouble(MOVIE_RATING);
                 releaseDate = movieJsonObject.getString(MOVIE_RELEASE_DATE);
+                popularity = movieJsonObject.getDouble(MOVIE_POPULARITY);
                 resultStrs[i] = new Movie(id, title, imageThumbnailURL, movieBackDropURL, plotSynopsis, userRating, releaseDate);
+
+                ContentValues movieValues = new ContentValues();
+
+                movieValues.put(MovieContract.MovieEntry._ID, id);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IMAGE_THUMBNAIL_URL, imageThumbnailURL);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_BACKDROP_URL, movieBackDropURL);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_PLOT_SYNOPSIS, plotSynopsis);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_USER_RATING, userRating);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, popularity);
+
+                cVVector.add(movieValues);
             }
 
-            return resultStrs;
+            int inserted = 0;
+            if ( cVVector.size() > 0 ) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                inserted = MovieExplorerApplication.getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+            }
         }
 
         @Override
@@ -109,8 +135,10 @@ public class MovieManager {
                 movieList.clear();
             }
 
-            for (Movie movie : movies) {
-                movieList.put(movie.getId(), movie);
+            if(movies!=null) {
+                for (Movie movie : movies) {
+                    movieList.put(movie.getId(), movie);
+                }
             }
 
             if (mMovieManagerDelegate != null) {
@@ -132,6 +160,8 @@ public class MovieManager {
 
             try {
                 Uri builtUri = Uri.parse(Constants.MOVIEDB_BASE_URL).buildUpon()
+                        .appendPath(Constants.DISCOVER_PARAM)
+                        .appendPath(Constants.MOVIE_PARAM)
                         .appendQueryParameter(Constants.SORT_PARAM, params[0])
                         .appendQueryParameter(Constants.API_KEY_PARAM, Constants.API_KEY)
                         .build();
@@ -176,7 +206,7 @@ public class MovieManager {
             }
 
             try {
-                return getMoviesFromJson(movieJsonStr);
+                getMoviesFromJson(movieJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();

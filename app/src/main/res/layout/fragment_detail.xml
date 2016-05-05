@@ -53,9 +53,9 @@
                 android:shadowColor="@color/colorPrimaryDark"
                 android:shadowDx="1"
                 android:shadowDy="1"
+                android:ellipsize="end"
                 android:shadowRadius="2"
                 android:singleLine="true"
-                android:text="MOVIE TITLE"
                 android:textColor="#ffffff"
                 android:textSize="28sp" />
 
@@ -116,8 +116,7 @@
                         android:id="@+id/movie_sub_title_textview"
                         style="@style/ContentStyle"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Movie Name Here" />
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         style="@style/HeadingStyle"
@@ -129,9 +128,20 @@
                         style="@style/ContentStyle"
                         android:id="@+id/release_date_textview"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Release Date Here" />
+                        android:layout_height="wrap_content" />
 
+
+                    <Button
+                        android:id="@+id/favorite_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:id="@+id/share_button"
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
+                        android:text="@string/share_label"
+                        android:layout_height="wrap_content"/>
 
                 </LinearLayout>
 
@@ -165,10 +175,75 @@
                     style="@style/ContentStyle"
                     android:layout_width="wrap_content"
                     android:lineSpacingMultiplier="1.5"
-                    android:layout_height="wrap_content"
-                    android:text="Plot Synopsis here" />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="#222222"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    style="@style/HeadingStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trailers" />
+
+                <ProgressBar
+                    android:id="@+id/trailers_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    />
+
+
+                <LinearLayout
+                    android:id="@+id/trailers_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"></LinearLayout>
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="#222222"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    style="@style/HeadingStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reviews" />
+
+                <ProgressBar
+                    android:id="@+id/reviews_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/reviews_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"></LinearLayout>
+
+            </LinearLayout>
+
 
 
         </LinearLayout>

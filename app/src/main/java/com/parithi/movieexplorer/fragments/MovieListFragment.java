@@ -1,10 +1,18 @@
 package com.parithi.movieexplorer.fragments;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,12 +30,19 @@ import com.parithi.movieexplorer.Constants;
 import com.parithi.movieexplorer.activities.DetailActivity;
 import com.parithi.movieexplorer.MovieExplorerApplication;
 import com.parithi.movieexplorer.R;
+import com.parithi.movieexplorer.activities.MainActivity;
+import com.parithi.movieexplorer.data.MovieContract;
 import com.parithi.movieexplorer.managers.MovieManager;
 import com.parithi.movieexplorer.models.Movie;
 
-public class MovieListFragment extends Fragment implements MovieManager.MovieManagerDelegate {
+public class MovieListFragment extends Fragment implements MovieManager.MovieManagerDelegate, LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
+    private static final int MOVIE_LOADER = 0;
+    String[] projection = { MovieContract.MovieEntry._ID,
+                            MovieContract.MovieEntry.COLUMN_TITLE,
+                            MovieContract.MovieEntry.COLUMN_USER_RATING,
+                            MovieContract.MovieEntry.COLUMN_IMAGE_THUMBNAIL_URL};
 
     private GridView mMovieGridView;
     private MovieListAdapter mMovieListAdapter;
@@ -56,23 +72,25 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
                 case Constants.HIGHEST_RATED_PARAM:
                     selected = 1;
                     break;
+                case Constants.FAVORITES:
+                    selected = 2;
+                    break;
             }
-            String[] types = {getString(R.string.most_popular_label), getString(R.string.highest_rated_label)};
+            String[] types = {getString(R.string.most_popular_label), getString(R.string.highest_rated_label), getString(R.string.favorites_label)};
 
             sortDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    MovieManager.getInstance().fetchMoviesFromURL();
-                    if (mMovieListAdapter != null) {
-                        mMovieListAdapter.reloadList();
+                    if(!MovieExplorerApplication.getStoredSortMode().equals(Constants.FAVORITES)) {
+                        MovieManager.getInstance().fetchMoviesFromURL();
                     }
+                    getLoaderManager().restartLoader(MOVIE_LOADER, null, MovieListFragment.this);
                 }
             });
             sortDialog.setSingleChoiceItems(types, selected, new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
                     switch (which) {
                         case 0:
                             mSortMode = Constants.MOST_POPULAR_PARAM;
@@ -82,7 +100,12 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
                             mSortMode = Constants.HIGHEST_RATED_PARAM;
                             MovieExplorerApplication.setStoredSortMode(Constants.HIGHEST_RATED_PARAM);
                             break;
+                        case 2:
+                            mSortMode = Constants.FAVORITES;
+                            MovieExplorerApplication.setStoredSortMode(Constants.FAVORITES);
+                            break;
                     }
+                    dialog.dismiss();
                 }
 
             });
@@ -104,35 +127,69 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
         mMovieGridView = (GridView) view.findViewById(R.id.movie_list_gridview);
         MovieManager.getInstance().setMovieManagerDelegate(this);
         MovieManager.getInstance().fetchMoviesFromURL();
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
     }
 
     @Override
     public void notifyMoviesLoaded() {
-        mMovieListAdapter = new MovieListAdapter();
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if(MovieExplorerApplication.getStoredSortMode().equals(Constants.MOST_POPULAR_PARAM)) {
+            return new CursorLoader(getActivity(),
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    projection,
+                    null,
+                    null,
+                    MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC");
+        } else if (MovieExplorerApplication.getStoredSortMode().equals(Constants.HIGHEST_RATED_PARAM)) {
+            return new CursorLoader(getActivity(),
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    projection,
+                    null,
+                    null,
+                    MovieContract.MovieEntry.COLUMN_USER_RATING + " DESC");
+        } else {
+            Log.d("MovieListFragment---","Checking favorites");
+            return new CursorLoader(getActivity(),
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    projection,
+                    MovieContract.MovieEntry.COLUMN_IS_FAVORITE + "=?",
+                    new String[]{"1"},
+                    null);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mMovieListAdapter = new MovieListAdapter(getActivity(),0,data,new String[]{},new int[]{},0);
         mMovieGridView.setAdapter(mMovieListAdapter);
     }
 
-    private class MovieListAdapter extends BaseAdapter {
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if(mMovieListAdapter!=null) {
+            mMovieListAdapter.swapCursor(null);
+        }
+    }
 
-        private Object[] mMoviesList;
+    private class MovieListAdapter extends SimpleCursorAdapter {
 
-        public MovieListAdapter() {
-            mMoviesList = MovieManager.getInstance().getMovieList().values().toArray();
+        public MovieListAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+            super(context, layout, c, from, to, flags);
         }
 
-        public void reloadList() {
-            mMoviesList = MovieManager.getInstance().getMovieList().values().toArray();
+        public void reloadList(Cursor cursor) {
+            cursor.moveToFirst();
+            swapCursor(cursor);
             notifyDataSetChanged();
         }
 
         @Override
         public int getCount() {
-            return (mMoviesList == null) ? 0 : mMoviesList.length;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mMoviesList[position];
+            return (getCursor() == null) ? 0 : getCursor().getCount();
         }
 
         @Override
@@ -154,16 +211,23 @@ public class MovieListFragment extends Fragment implements MovieManager.MovieMan
                 movieViewHolder = (MovieViewHolder) convertView.getTag();
             }
 
-            movieViewHolder.movieTitleTextView.setText(((Movie) mMoviesList[position]).getTitle());
-            movieViewHolder.movieRatingTextView.setText(String.format("%.2g", ((Movie) mMoviesList[position]).getUserRating()));
-            Glide.with(MovieListFragment.this).load(((Movie) mMoviesList[position]).getImageThumbnailURL()).centerCrop().crossFade().into(movieViewHolder.moviePosterImageView);
+            getCursor().moveToPosition(position);
+            movieViewHolder.movieTitleTextView.setText(getCursor().getString(getCursor().getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
+            movieViewHolder.movieRatingTextView.setText(getCursor().getString(getCursor().getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATING)));
+            Glide.with(MovieListFragment.this).load(getCursor().getString(getCursor().getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_THUMBNAIL_URL))).centerCrop().crossFade().into(movieViewHolder.moviePosterImageView);
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                    detailIntent.putExtra(Intent.EXTRA_TEXT, ((Movie) mMoviesList[position]).getId());
-                    startActivity(detailIntent);
+                    if(((MainActivity) getActivity()).isTablet()) {
+                        getCursor().moveToPosition(position);
+                        ((MainActivity) getActivity()).loadMovieToDetail((getCursor().getLong(getCursor().getColumnIndex(MovieContract.MovieEntry._ID))));
+                    } else {
+                        getCursor().moveToPosition(position);
+                        Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                        detailIntent.putExtra(Intent.EXTRA_TEXT, (getCursor().getLong(getCursor().getColumnIndex(MovieContract.MovieEntry._ID))));
+                        startActivity(detailIntent);
+                    }
                 }
             });
             return convertView;

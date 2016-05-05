@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.parithi.movieexplorer.R;
+import com.parithi.movieexplorer.fragments.MovieDetailFragment;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -17,6 +18,11 @@ public class DetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, new MovieDetailFragment())
+                    .commit();
+        }
     }
 
     @Override

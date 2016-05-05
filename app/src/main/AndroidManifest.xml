@@ -22,6 +22,9 @@
             android:name=".activities.DetailActivity"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <provider
+            android:authorities="com.parithi.movieexplorer.movies"
+            android:name=".data.MovieProvider" />
     </application>
 
 </manifest>

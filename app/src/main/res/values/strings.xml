@@ -5,4 +5,11 @@
     <string name="sort_by_label">Sort By</string>
     <string name="most_popular_label">Most Popular</string>
     <string name="highest_rated_label">Highest Rated</string>
+    <string name="favorites_label">Favorites</string>
+    <string name="share_using">Share Using</string>
+    <string name="share_label">Share</string>
+    <string name="choose_movie_label">Choose a movie from the left to get started</string>
+    <string name="check_out_label">Check out this trailer-</string>
+    <string name="favorited_label">Favorited</string>
+
 </resources>

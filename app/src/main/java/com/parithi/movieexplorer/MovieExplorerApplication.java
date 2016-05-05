@@ -17,6 +17,14 @@ public class MovieExplorerApplication extends Application {
         context = this;
     }
 
+    public static Context getContext() {
+        return context;
+    }
+
+    public static void setContext(Context context) {
+        MovieExplorerApplication.context = context;
+    }
+
     public static void setStoredSortMode(String status) {
         SharedPreferences settings = context.getSharedPreferences(
                 Constants.SHARED_PREFERENCES, MODE_PRIVATE);
